@@ -1,0 +1,51 @@
+# ============================================================
+# 项目配置文件（PEP 621 标准）
+# 这里声明：项目名、版本、依赖、命令行入口、构建方式等。
+# ============================================================
+
+[project]
+name = "code-review-agent"           # 包名
+version = "0.1.0"                    # 版本号
+description = "An LLM-powered intelligent code review agent with tool calling"
+readme = "README.md"                 # 项目说明文档
+requires-python = ">=3.11"           # 需要 Python 3.11 及以上
+dependencies = [                     # 运行时依赖
+    "openai>=1.40",                  # 调用大模型（OpenAI 兼容接口）
+    "httpx>=0.27",                   # 调 GitHub API（PR bot）
+    "pydantic>=2.7",                 # 数据校验 + 结构化输出
+    "typer>=0.12",                   # 命令行框架
+    "rich>=13.7",                    # 终端美化输出
+]
+
+[project.optional-dependencies]
+dev = [                              # 开发期依赖（用 pip install -e ".[dev]" 安装）
+    "pytest>=8.0",                   # 单元测试
+    "ruff>=0.5",                     # 代码风格/静态检查
+]
+rag = [                              # RAG 用向量库（用 pip install -e ".[rag]" 安装）
+    "chromadb>=0.5",                 # 本地持久化向量数据库
+]
+web = [                              # Web 界面（用 pip install -e ".[web]" 安装）
+    "fastapi>=0.110",                # Web 后端框架
+    "uvicorn>=0.29",                 # ASGI 服务器
+]
+
+[project.scripts]
+# 安装后，命令行输入 `code-review` 就会执行 code_review_agent.cli:app
+code-review = "code_review_agent.cli:app"
+# 启动 Web 界面
+code-review-web = "code_review_agent.web:main"
+# 评审 GitHub PR
+code-review-pr = "code_review_agent.cli:pr_app"
+
+[build-system]
+# 用 setuptools 作为构建后端（负责把项目打包成可安装的包）
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]                      # 告诉 setuptools：真正的包在 src/ 目录下
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
